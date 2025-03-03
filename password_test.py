@@ -1,17 +1,17 @@
-import os
 import requests
+from passwords import GITHUB_USERNAME, GITHUB_TOKEN
+# GitHub API URL
+api_url = f"https://api.github.com/users/{GITHUB_USERNAME}/repos"
 
-# Fetch username and password from environment variables
-username = os.getenv('MY_USERNAME')
-password = os.getenv('MY_PASSWORD')
+# Send a GET request to the GitHub API with authentication
+response = requests.get(api_url, auth=(GITHUB_USERNAME, GITHUB_TOKEN))
 
-# Check if the environment variables are set
-if username and password:
-    url = "http://host.docker.internal:8000/basic-auth/russ/test"
-    response = requests.get(url, auth=(username, password))
-
-    # Print the response
-    print(f"Status Code: {response.status_code}")
-    print("Response Content:", response.content.decode())
+# Check if the request was successful
+if response.status_code == 200:
+    print(f"Authenticated as {GITHUB_USERNAME}")
+    repos = response.json()
+    print("Repositories:")
+    for repo in repos:
+        print(f"- {repo['name']}")
 else:
-    print("Environment variables MY_USERNAME and MY_PASSWORD are not set.")
+    print(f"Failed to authenticate or fetch data. Status Code: {response.status_code}")
